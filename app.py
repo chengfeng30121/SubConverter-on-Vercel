@@ -19,7 +19,8 @@ def check_and_run_subconverter():
     if not os.path.exists(exe_path):
         print(f"Error: {exe_name} not found in {script_dir}")
         sys.exit(1)
-    if sys.platform != "win32":
+    # if sys.platform != "win32":
+    if False:
         try:
             os.chmod(exe_path, 0o755)
         except Exception as e:
