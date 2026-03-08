@@ -1,4 +1,4 @@
-#/usr/bin/python3
+#!/usr/bin/python3
 import os
 import sys
 import subprocess
@@ -6,6 +6,7 @@ import threading
 import time
 from flask import Flask, request, Response
 import requests
+from urllib.parse import quote
 
 app = Flask(__name__)
 
@@ -19,7 +20,6 @@ def check_and_run_subconverter():
     if not os.path.exists(exe_path):
         print(f"Error: {exe_name} not found in {script_dir}")
         sys.exit(1)
-    # if sys.platform != "win32":
     if False:
         try:
             os.chmod(exe_path, 0o755)
@@ -40,7 +40,16 @@ def check_and_run_subconverter():
 check_and_run_subconverter()
 
 def proxy_request(path):
-    url = f"http://127.0.0.1:25500/{path}"
+    query_string = request.query_string.decode('utf-8')
+    if query_string:
+        encoded_query = '&'.join(
+            f"{key}={quote(value, safe='')}" 
+            for key, value in request.args.items(multi=True)
+        )
+        url = f"http://127.0.0.1:25500/{path}?{encoded_query}"
+    else:
+        url = f"http://127.0.0.1:25500/{path}"
+    
     headers = {key: value for key, value in request.headers if key.lower() != 'host'}
     try:
         resp = requests.request(
@@ -63,5 +72,3 @@ def proxy_request(path):
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'])
 def catch_all(path):
     return proxy_request(path)
-
-
