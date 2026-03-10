@@ -14,8 +14,10 @@ def check_and_run_subconverter():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     if sys.platform == "win32":
         exe_name = "subconverter.exe"
+        os.system(f"taskkill /f /im {exe_name}")
     else:
         exe_name = "subconverter"
+        os.system(f"killall -9 {exe_name}")
     exe_path = os.path.join(script_dir, exe_name)
     if not os.path.exists(exe_path):
         print(f"Error: {exe_name} not found in {script_dir}")
